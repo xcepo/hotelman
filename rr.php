@@ -6,13 +6,10 @@ if (!isset($_SESSION['id']) || $_SESSION['usertype_id'] != 2) {
     echo '<script>window.location.replace("index.php");</script>';
     exit();
 }
-?>
 
-<?php
 require('config.php');
 
 if (isset($_POST['reserveNow'])) {
-    // Check if the reservation is successful and update room status
     $reservationId = $_POST['reservation_id'];
 
     // Update the room status to 2 (unavailable)
@@ -26,7 +23,7 @@ if (isset($_POST['reserveNow'])) {
         echo '<script>alert("Room reserved successfully.");</script>';
         echo '<meta http-equiv="refresh" content="0">';
     } else {
-        echo 'Error updating room status.';
+        echo '<p style="color:red;">Error updating room status.</p>';
     }
 }
 
@@ -43,14 +40,103 @@ $query = "SELECT reservation.*,
           LEFT JOIN method ON payment.method_id = method.id
           LEFT JOIN pstatus ON payment.pstatuts_id = pstatus.id";
 
-
 $result = mysqli_query($conn, $query);
+?>
 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reservation Request</title>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f9fafb;
+        margin: 20px;
+    }
+
+    h2 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    th,
+    td {
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    th {
+        background-color: #007BFF;
+        color: white;
+        font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f6fc;
+    }
+
+    input[type="submit"] {
+        padding: 8px 16px;
+        background-color: #28a745;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #218838;
+    }
+
+    a.back-link {
+        display: inline-block;
+        margin-top: 20px;
+        text-decoration: none;
+        color: #007BFF;
+        font-weight: 600;
+    }
+
+    a.back-link:hover {
+        text-decoration: underline;
+    }
+    </style>
+</head>
+
+<body>
+
+    <?php
 if ($result && mysqli_num_rows($result) > 0) {
     echo '<h2>Your Reservations and Payments</h2>';
-    echo '<table border="1">';
-    echo '<tr><th>Room Number</th><th>Room Type</th><th>Room Rate</th><th>Room Status</th><th>Check-in Date</th><th>Check-out Date</th><th>User Name</th><th>Payment Amount</th><th>Payment Method</th><th>Payment Status</th><th>Action</th></tr>';
-    
+    echo '<table>';
+    echo '<tr>
+            <th>Room Number</th>
+            <th>Room Type</th>
+            <th>Room Rate</th>
+            <th>Room Status</th>
+            <th>Check-in Date</th>
+            <th>Check-out Date</th>
+            <th>User Name</th>
+            <th>Payment Amount</th>
+            <th>Payment Method</th>
+            <th>Payment Status</th>
+            <th>Action</th>
+          </tr>';
+
     while ($row = mysqli_fetch_assoc($result)) {
         echo '<tr>';
         echo '<td>' . ($row['room_number'] ?? 'N/A') . '</td>';
@@ -64,36 +150,28 @@ if ($result && mysqli_num_rows($result) > 0) {
         echo '<td>' . ($row['payment_method'] ?? 'N/A') . '</td>';
         echo '<td>' . ($row['payment_status'] ?? 'N/A') . '</td>';
         echo '<td>';
-        
-        // Display the "Reserve" button only if the room status is available (1)
         if ($row['roomstatus_id'] == 1) {
-            echo '<form action="" method="POST">';
+            echo '<form action="" method="POST" style="margin:0;">';
             echo '<input type="hidden" name="reservation_id" value="' . $row['id'] . '">';
             echo '<input type="submit" name="reserveNow" value="Reserve">';
             echo '</form>';
         } else {
             echo 'Room Not Available';
         }
-
         echo '</td>';
         echo '</tr>';
     }
+
     echo '</table>';
 } else {
-    echo 'No reservations found.';
+    echo '<p style="text-align:center; color:#666;">No reservations found.</p>';
 }
 
 mysqli_close($conn);
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Reservation Request</title>
-</head>
-<body>
-    <a href="front.php">Back</a>
+    <a href="front.php" class="back-link">← Back to Front Desk</a>
+
 </body>
+
 </html>

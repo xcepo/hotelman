@@ -1,8 +1,11 @@
 <?php 
-    $conn = mysqli_connect('localhost','root','','hotel');
-    session_start();
+$conn = mysqli_connect('localhost','root','','hotel');
 
-    if(isset($_POST['loginBtn'])) {
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (isset($_POST['loginBtn'])) {
     $username = $_POST['username'];
     $pass = $_POST['psw'];
 
@@ -15,11 +18,10 @@
 
     if ($row > 0) {
         if ($pass == $pw) {
-            session_start();
             $_SESSION['id'] = $id;
             $_SESSION['usertype_id'] = $usertype;
 
-            if($usertype == '1') {
+            if ($usertype == '1') {
                 header('location: admin.php');
                 exit();
             } elseif ($usertype == '2') {
@@ -29,29 +31,23 @@
                 header('location: home.php');
                 exit();
             } else {
-                // Handle other user types as needed
                 echo "<script>alert('Invalid user type. Please contact support.');</script>";
                 echo "<script>window.location.href='index.php';</script>";
-                echo "<meta http-equiv='refresh' content='0'>";
                 exit();
             }
         } else {
             echo "<script>alert('Wrong password/USN. Please try again.');</script>";
             echo "<script>window.location.href='index.php';</script>";
-            echo "<meta http-equiv='refresh' content='0'>";
             exit();
         }
     } else {
         echo "<script>alert('Invalid credentials. Please try again.');</script>";
         echo "<script>window.location.href='index.php';</script>";
-        echo "<meta http-equiv='refresh' content='0'>";
         exit();
     }
 }
 
-
-
-    if (isset($_POST['regBtn'])) {
+if (isset($_POST['regBtn'])) {
     $username = $_POST['username'];
     $password = $_POST['pw'];
     $confirm = $_POST['confirm'];
@@ -76,10 +72,9 @@
     } else {
         if ($password == $confirm) {
             mysqli_query($conn, "INSERT INTO login (`username`, `password`, `usertype_id`) VALUES ('$username', '$password', '3')");
-
             $userId = mysqli_insert_id($conn);
 
-            mysqli_query($conn, "INSERT INTO profile (`fname`, `lname`, `mname`, `bday`, `contactnum`,`email`, `gender_id`, `login_id`, `region_id`, `province_id`, `city_id`, `brgy_id`) 
+            mysqli_query($conn, "INSERT INTO profile (`fname`, `lname`, `mname`, `bday`, `contactnum`, `email`, `gender_id`, `login_id`, `region_id`, `province_id`, `city_id`, `brgy_id`) 
                                  VALUES ('$fname', '$lname', '$mname', '$bday', '$contactnum','$email', '$genderId', '$userId', '$regionId', '$provinceId', '$cityId', '$brgyId')");
 
             echo "<script>alert('" . $username . " registered successfully.');</script>";
@@ -91,57 +86,46 @@
     }
 }
 
+if (isset($_POST['addRoom'])) {
+    $roomNumber = $_POST['roomnumber'];
+    $roomType = $_POST['roomtype'];
+    $roomRate = $_POST['roomrate'];
+    $roomStatus = $_POST['roomstatus'];
 
-    if (isset($_POST['addRoom'])) {
-        $roomNumber = $_POST['roomnumber'];
-        $roomType = $_POST['roomtype'];
-        $roomRate = $_POST['roomrate'];
-        $roomStatus = $_POST['roomstatus'];
+    $targetDir = "uploads/";
+    $fileName = basename($_FILES["image"]["name"]);
+    $targetFilePath = $targetDir . $fileName;
+    $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
+    $allowedTypes = array('jpg', 'jpeg', 'png', 'gif');
 
-        $targetDir = "uploads/";
-        $fileName = basename($_FILES["image"]["name"]);
-        $targetFilePath = $targetDir . $fileName;
-        $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
-        $allowedTypes = array('jpg', 'jpeg', 'png', 'gif');
+    if (in_array($fileType, $allowedTypes)) {
+        if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFilePath)) {
+            $query = "INSERT INTO rooms (room_number, roomtype_id, roomrate, roomstatus_id, image_path) 
+                      VALUES ('$roomNumber', '$roomType', '$roomRate', '$roomStatus', '$targetFilePath')";
 
-        if (in_array($fileType, $allowedTypes)) {
-            if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFilePath)) {
-                $query = "INSERT INTO rooms (room_number, roomtype_id, roomrate, roomstatus_id, image_path) 
-                          VALUES ('$roomNumber', '$roomType', '$roomRate', '$roomStatus', '$targetFilePath')";
-
-                if (mysqli_query($conn, $query)) {
-                    echo "<script>alert('Room added successfully.');</script>";
-                    echo "<script>window.location.href='admin.php';</script>";
-                    echo "<meta http-equiv='refresh' content='0'>";
-                } else {
-                    echo "Error: " . $query . "<br>" . mysqli_error($conn);
-                }
+            if (mysqli_query($conn, $query)) {
+                echo "<script>alert('Room added successfully.');</script>";
+                echo "<script>window.location.href='admin.php';</script>";
             } else {
-                echo "<script>alert('Error uploading file.');</script>";
+                echo "Error: " . $query . "<br>" . mysqli_error($conn);
             }
         } else {
-            echo "<script>alert('Invalid file format.');</script>";
+            echo "<script>alert('Error uploading file.');</script>";
         }
-
+    } else {
+        echo "<script>alert('Invalid file format.');</script>";
     }
-
+}
 
 if (isset($_POST['addStaff'])) {
-    $lastName = $_POST['lname'];
-    $firstName = $_POST['fname'];
-    $middleName = $_POST['mname'];
+    $lastName = mysqli_real_escape_string($conn, $_POST['lname']);
+    $firstName = mysqli_real_escape_string($conn, $_POST['fname']);
+    $middleName = mysqli_real_escape_string($conn, $_POST['mname']);
     $genderId = $_POST['gender'];
-    $address = $_POST['address'];
-    $email = $_POST['email'];
-    $contactNumber = $_POST['contactnum'];
+    $address = mysqli_real_escape_string($conn, $_POST['address']);
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $contactNumber = mysqli_real_escape_string($conn, $_POST['contactnum']);
     $departmentId = $_POST['department'];
-
-    $lastName = mysqli_real_escape_string($conn, $lastName);
-    $firstName = mysqli_real_escape_string($conn, $firstName);
-    $middleName = mysqli_real_escape_string($conn, $middleName);
-    $address = mysqli_real_escape_string($conn, $address);
-    $email = mysqli_real_escape_string($conn, $email);
-    $contactNumber = mysqli_real_escape_string($conn, $contactNumber);
 
     $query = "INSERT INTO staff (lname, fname, mname, gender_id, address, email, contactnum, department_id)
               VALUES ('$lastName', '$firstName', '$middleName', '$genderId', '$address', '$email', '$contactNumber', '$departmentId')";
@@ -149,11 +133,8 @@ if (isset($_POST['addStaff'])) {
     if (mysqli_query($conn, $query)) {
         echo "<script>alert('Staff added successfully.');</script>";
         echo "<script>window.location.href='admin.php';</script>";
-        echo "<meta http-equiv='refresh' content='0'>";
     } else {
         echo "Error: " . $query . "<br>" . mysqli_error($conn);
     }
-
 }
-
 ?>

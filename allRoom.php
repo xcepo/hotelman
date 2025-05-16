@@ -8,48 +8,98 @@ if (!isset($_SESSION['id']) || $_SESSION['usertype_id'] != 1) {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>All Rooms</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
+    body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        background: #f9f9f9;
+    }
 
+    h1 {
+        margin-bottom: 20px;
+    }
+
+    .room-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .room-box {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        width: 250px;
+        box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
+        transition: box-shadow 0.3s ease;
+    }
+
+    .room-box:hover {
+        box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+    }
+
+    .room-image {
+        max-width: 100%;
+        max-height: 150px;
+        border-radius: 4px;
+        object-fit: cover;
+        margin-bottom: 10px;
+    }
+
+    .room-info p {
+        margin: 6px 0;
+        font-size: 0.9rem;
+    }
+
+    .room-info strong {
+        color: #333;
+    }
+
+    .available {
+        color: green;
+        font-weight: bold;
+    }
+
+    .unavailable {
+        color: red;
+        font-weight: bold;
+    }
+
+    a.back-btn {
+        display: inline-block;
+        margin-top: 30px;
+        padding: 8px 16px;
+        background: #007bff;
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    a.back-btn:hover {
+        background: #0056b3;
+    }
+
+    @media (max-width: 600px) {
         .room-box {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-bottom: 20px;
-            display: inline-block;
+            width: 100%;
         }
-
-        .room-image {
-            max-width: 200px;
-            max-height: 200px;
-        }
-
-        /* Styling for room status */
-        .available {
-            color: green; /* Change color to green */
-            font-weight: bold;
-        }
-
-        .unavailable {
-            color: red;
-            font-weight: bold;
-        }
+    }
     </style>
 </head>
+
 <body>
     <h1>All Rooms</h1>
-    <form><a href="admin.php">Back</a></form><br>
-
-    <?php
+    <div class="room-container">
+        <?php
     require('config.php');
 
     $query = "SELECT rooms.room_number, roomtype.name AS room_type, rooms.roomrate, roomstatus.name AS room_status, rooms.image_path
@@ -61,26 +111,29 @@ if (!isset($_SESSION['id']) || $_SESSION['usertype_id'] != 1) {
     if ($result) {
         if (mysqli_num_rows($result) > 0) {
             while ($row = mysqli_fetch_assoc($result)) {
-                // Set the class based on room status
                 $statusClass = (strtolower($row['room_status']) == 'available') ? 'available' : 'unavailable';
 
                 echo '<div class="room-box">';
-                echo '<p><strong>Room Number:</strong> ' . $row['room_number'] . '</p>';
-                echo '<p><strong>Room Type:</strong> ' . $row['room_type'] . '</p>';
-                echo '<p><strong>Room Rate:</strong> ' . $row['roomrate'] . '</p>';
-                echo '<p><strong>Room Status:</strong> <span class="' . $statusClass . '">' . $row['room_status'] . '</span></p>';
-                echo '<img src="' . $row['image_path'] . '" alt="Room Image" class="room-image">';
+                echo '<img src="' . htmlspecialchars($row['image_path']) . '" alt="Room Image" class="room-image">';
+                echo '<div class="room-info">';
+                echo '<p><strong>Room Number:</strong> ' . htmlspecialchars($row['room_number']) . '</p>';
+                echo '<p><strong>Room Type:</strong> ' . htmlspecialchars($row['room_type']) . '</p>';
+                echo '<p><strong>Room Rate:</strong> $' . htmlspecialchars($row['roomrate']) . '</p>';
+                echo '<p><strong>Room Status:</strong> <span class="' . $statusClass . '">' . htmlspecialchars($row['room_status']) . '</span></p>';
+                echo '</div>';
                 echo '</div>';
             }
         } else {
-            echo 'No rooms found.';
+            echo '<p>No rooms found.</p>';
         }
     } else {
-        echo 'Error: ' . $query . '<br>' . mysqli_error($conn);
+        echo '<p>Error: ' . $query . '<br>' . mysqli_error($conn) . '</p>';
     }
 
     mysqli_close($conn);
     ?>
-
+    </div>
+    <a href="admin.php" class="back-btn">Back</a>
 </body>
+
 </html>

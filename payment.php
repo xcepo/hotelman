@@ -27,14 +27,6 @@ if (isset($_SESSION['id'])) {
             $roomRate = $reservationDetails['roomrate'];
             $totalAmount = $duration * $roomRate + 1000;
 
-            // Display reservation details and total amount in Philippine Peso
-            echo '<p><strong>Room Number:</strong> ' . $reservationDetails['room_number'] . '</p>';
-            echo '<p><strong>Room Type:</strong> ' . $reservationDetails['room_type'] . '</p>';
-            echo '<p><strong>Check-in Date:</strong> ' . $reservationDetails['checkin_date'] . '</p>';
-            echo '<p><strong>Check-out Date:</strong> ' . $reservationDetails['checkout_date'] . '</p>';
-            echo '<p><strong>Reservation Fee:</strong> Php 1,000.00';
-            echo '<p><strong>Total Amount:</strong> Php ' . number_format($totalAmount, 2) . '</p>';
-
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['payNow'])) {
                 // Process payment method
                 $paymentMethod = $_POST['method'];
@@ -46,53 +38,156 @@ if (isset($_SESSION['id'])) {
                 $insertPaymentQuery = "INSERT INTO payment (reservation_id, amount, method_id, pstatuts_id)
                        VALUES ('{$reservationDetails['reservation_id']}', $totalAmount, $paymentMethod, $pstatusId)";
 
-
                 $insertPaymentResult = mysqli_query($conn, $insertPaymentQuery);
 
                 if ($insertPaymentResult) {
-                    echo '<script>alert("Payment details added to the payment table.");</script>';
-                    echo '<script>window.location.href = "home.php";</script>';
+                    echo '<script>alert("Payment details added successfully."); window.location.href = "home.php";</script>';
+                    exit();
                 } else {
-                    echo '<script>alert("Error inserting payment details into the payment table.");</script>';
+                    echo '<script>alert("Error inserting payment details.");</script>';
                 }
             }
         } else {
-            echo 'Error fetching reservation details.';
+            echo '<p class="error">Error fetching reservation details.</p>';
         }
     } else {
-        echo 'Room ID not specified.';
+        echo '<p class="error">Room ID not specified.</p>';
     }
 
     mysqli_close($conn);
 } else {
-    echo 'User not logged in.';
+    echo '<p class="error">User not logged in.</p>';
 }
 ?>
 
-<form action="payment.php?id=<?php echo $roomId; ?>" method="POST">
-    <label for="method">Payment Method:</label>
-    <select name="method" id="method" required>
-        <option disabled selected value="--Select Payment Method--">--Select Payment Method--</option>
-        <?php
-            require('config.php');
+<!DOCTYPE html>
+<html lang="en">
 
-            $query = "SELECT * FROM method";
-            $result = mysqli_query($conn, $query);
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Payment</title>
+    <style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
 
-            if ($result) {
-                while ($row = mysqli_fetch_assoc($result)) {
-                    echo "<option value='{$row['id']}'>{$row['name']}</option>";
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+
+    p {
+        font-size: 1rem;
+        margin: 10px 0;
+        color: #555;
+    }
+
+    p strong {
+        color: #222;
+    }
+
+    .error {
+        color: red;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    form {
+        margin-top: 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    label {
+        font-weight: 600;
+        color: #444;
+    }
+
+    select {
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+    }
+
+    input[type="submit"] {
+        background-color: #007BFF;
+        border: none;
+        padding: 12px;
+        color: white;
+        font-weight: bold;
+        font-size: 1.1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+
+    a {
+        display: block;
+        margin-top: 20px;
+        text-align: center;
+        text-decoration: none;
+        color: #007BFF;
+        font-weight: 600;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+    </style>
+</head>
+
+<body>
+
+    <h1>Payment Details</h1>
+
+    <?php if (isset($reservationDetails)) : ?>
+    <p><strong>Room Number:</strong> <?= htmlspecialchars($reservationDetails['room_number']) ?></p>
+    <p><strong>Room Type:</strong> <?= htmlspecialchars($reservationDetails['room_type']) ?></p>
+    <p><strong>Check-in Date:</strong> <?= htmlspecialchars($reservationDetails['checkin_date']) ?></p>
+    <p><strong>Check-out Date:</strong> <?= htmlspecialchars($reservationDetails['checkout_date']) ?></p>
+    <p><strong>Reservation Fee:</strong> Php 1,000.00</p>
+    <p><strong>Total Amount:</strong> Php <?= number_format($totalAmount, 2) ?></p>
+
+    <form action="payment.php?id=<?= urlencode($roomId) ?>" method="POST">
+        <label for="method">Payment Method:</label>
+        <select name="method" id="method" required>
+            <option value="" disabled selected>--Select Payment Method--</option>
+            <?php
+                require('config.php');
+                $methodQuery = "SELECT * FROM method";
+                $methodResult = mysqli_query($conn, $methodQuery);
+
+                if ($methodResult) {
+                    while ($row = mysqli_fetch_assoc($methodResult)) {
+                        echo "<option value='" . htmlspecialchars($row['id']) . "'>" . htmlspecialchars($row['name']) . "</option>";
+                    }
+                } else {
+                    echo "<option disabled>Error loading methods</option>";
                 }
-            } else {
-                echo "Error: " . $query . "<br>" . mysqli_error($conn);
-            }
 
-            mysqli_close($conn);
-        ?>
-    </select><br><br>
+                mysqli_close($conn);
+            ?>
+        </select>
 
-    <input type="submit" name="payNow" value="Process Payment">
-</form><br>
+        <input type="submit" name="payNow" value="Process Payment">
+    </form>
+    <?php endif; ?>
 
-<a href="home.php">Back Home</a>
+    <a href="home.php">Back Home</a>
 
+</body>
+
+</html>
