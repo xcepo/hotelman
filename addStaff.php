@@ -8,80 +8,121 @@ if (!isset($_SESSION['id']) || $_SESSION['usertype_id'] != 1) {
 }
 ?>
 
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Add Staff</title>
+    <meta charset="UTF-8">
+    <title>Add Staff - Hotel Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-	<h1>ADD A STAFF</h1>
-	 <form action="config.php" method="POST" onsubmit="return validateForm();">
-		<label for="">Last Name:</label><br>
-		<input type="text" id="lname" name="lname" placeholder="Lastname" required><br><br>
 
-		<label for="">First Name:</label><br>
-		<input type="text" id="fname" name="fname" placeholder="Firstname" required><br><br>
+<body class="bg-light">
 
-		<label for="">Middle Name:</label><br>
-		<input type="text" id="mname" name="mname" placeholder="Middlename" required><br><br>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="admin.php">Hotel Admin</a>
+            <div class="d-flex">
+                <a href="logout.php" class="btn btn-outline-light">Logout</a>
+            </div>
+        </div>
+    </nav>
 
-		<label for="cars">Gender:</label><br>
-        <select name="gender" id="gender" required>
-            <option disabled selected value="--Select Gender--">--Select Gender--</option>
-            <?php
-                require('config.php');
+    <div class="container mt-5">
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Add a New Staff Member</h3>
+            </div>
+            <div class="card-body">
+                <form action="config.php" method="POST" onsubmit="return validateForm();">
+                    <div class="mb-3">
+                        <label for="lname" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="lname" name="lname" placeholder="Last Name"
+                            required>
+                    </div>
 
-                $query = "SELECT * FROM gender";
-                $result = mysqli_query($conn, $query);
+                    <div class="mb-3">
+                        <label for="fname" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="fname" name="fname" placeholder="First Name"
+                            required>
+                    </div>
 
-                if ($result) {
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        echo "<option value='{$row['id']}'>{$row['name']}</option>";
-                    }
-                } else {
-                    echo "Error: " . $query . "<br>" . mysqli_error($conn);
-                }
+                    <div class="mb-3">
+                        <label for="mname" class="form-label">Middle Name</label>
+                        <input type="text" class="form-control" id="mname" name="mname" placeholder="Middle Name"
+                            required>
+                    </div>
 
-                mysqli_close($conn);
-            ?>
-        </select><br><br>
+                    <div class="mb-3">
+                        <label for="gender" class="form-label">Gender</label>
+                        <select class="form-select" name="gender" id="gender" required>
+                            <option disabled selected value="">--Select Gender--</option>
+                            <?php
+                                require('config.php');
+                                $query = "SELECT * FROM gender";
+                                $result = mysqli_query($conn, $query);
+                                if ($result) {
+                                    while ($row = mysqli_fetch_assoc($result)) {
+                                        echo "<option value='{$row['id']}'>{$row['name']}</option>";
+                                    }
+                                } else {
+                                    echo "<option>Error loading genders</option>";
+                                }
+                                mysqli_close($conn);
+                            ?>
+                        </select>
+                    </div>
 
-		<label for="">Address:</label><br>
-		<input type="text" id="address" name="address" placeholder="Address" required><br><br>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="address" name="address" placeholder="Address"
+                            required>
+                    </div>
 
-		<label for="">Email:</label><br>
-		<input type="text" id="email" name="email" placeholder="Email" required><br><br>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+                    </div>
 
-		<label for="">Contact Number:</label><br>
-		<input type="number" id="contactnum" name="contactnum" placeholder="Contact" required><br><br>
+                    <div class="mb-3">
+                        <label for="contactnum" class="form-label">Contact Number</label>
+                        <input type="text" class="form-control" id="contactnum" name="contactnum"
+                            placeholder="Contact Number" required>
+                    </div>
 
-		<label for="cars">Gender:</label><br>
-        <select name="department" id="department" required>
-            <option disabled selected value="--Select Department--">--Select Department--</option>
-            <?php
-                require('config.php');
+                    <div class="mb-3">
+                        <label for="department" class="form-label">Department</label>
+                        <select class="form-select" name="department" id="department" required>
+                            <option disabled selected value="">--Select Department--</option>
+                            <?php
+                                require('config.php');
+                                $query = "SELECT * FROM department";
+                                $result = mysqli_query($conn, $query);
+                                if ($result) {
+                                    while ($row = mysqli_fetch_assoc($result)) {
+                                        echo "<option value='{$row['id']}'>{$row['name']}</option>";
+                                    }
+                                } else {
+                                    echo "<option>Error loading departments</option>";
+                                }
+                                mysqli_close($conn);
+                            ?>
+                        </select>
+                    </div>
 
-                $query = "SELECT * FROM department";
-                $result = mysqli_query($conn, $query);
+                    <button type="submit" name="addStaff" class="btn btn-primary w-100">Hire Staff</button>
+                </form>
+                <div class="mt-3">
+                    <a href="admin.php" class="btn btn-secondary">← Back to Admin Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                if ($result) {
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        echo "<option value='{$row['id']}'>{$row['name']}</option>";
-                    }
-                } else {
-                    echo "Error: " . $query . "<br>" . mysqli_error($conn);
-                }
-
-                mysqli_close($conn);
-            ?>
-        </select><br><br>
-
-        <input type="submit" name="addStaff" value="Hire">
-
-	</form><br>
-<a href="admin.php">Back</a>
+    <!-- Optional Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
