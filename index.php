@@ -93,10 +93,10 @@ if (isset($_SESSION['id'])) {
     <div class="login-container">
         <h1>Login</h1>
         <form action="config.php" method="POST">
-            <label for="username">Username:</label>
+            <label for="username">Username</label>
             <input type="text" id="username" name="username" placeholder="Username" required>
 
-            <label for="psw">Password:</label>
+            <label for="psw">Password</label>
             <input type="password" id="psw" name="psw" placeholder="Password" required>
 
             <input type="submit" name="loginBtn" value="Login">

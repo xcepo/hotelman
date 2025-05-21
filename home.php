@@ -28,7 +28,6 @@ if (!isset($_SESSION['id'])) {
         margin-bottom: 30px;
     }
 
-    /* Navigation links container */
     .nav-links {
         max-width: 800px;
         margin: 0 auto 40px auto;
@@ -52,7 +51,17 @@ if (!isset($_SESSION['id'])) {
         background-color: #0056b3;
     }
 
-    /* Container for all rooms */
+    /* Logout button style */
+    .logout-button {
+        background-color: #dc3545 !important;
+        border: 1px solid #dc3545 !important;
+    }
+
+    .logout-button:hover {
+        background-color: #c82333 !important;
+        border-color: #bd2130 !important;
+    }
+
     .rooms-container {
         max-width: 900px;
         margin: 0 auto;
@@ -62,7 +71,6 @@ if (!isset($_SESSION['id'])) {
         justify-content: center;
     }
 
-    /* Each room card */
     .room-box {
         background: white;
         border-radius: 10px;
@@ -100,7 +108,6 @@ if (!isset($_SESSION['id'])) {
         color: #555;
     }
 
-    /* Status styles */
     .available {
         color: #28a745;
         font-weight: 700;
@@ -111,7 +118,6 @@ if (!isset($_SESSION['id'])) {
         font-weight: 700;
     }
 
-    /* Buttons container */
     .buttons {
         margin-top: 15px;
         display: flex;
@@ -155,7 +161,7 @@ if (!isset($_SESSION['id'])) {
     <h1>All Rooms</h1>
 
     <div class="nav-links">
-        <a href="logout.php">Logout</a>
+        <a href="logout.php" class="logout-button">Logout</a>
         <a href="rules.php">Rules</a>
         <a href="rate.php">Rate Rooms</a>
         <a href="ratedrooms.php">Rated Rooms</a>
